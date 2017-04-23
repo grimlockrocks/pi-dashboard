@@ -1,0 +1,108 @@
+<head>
+  <title>My Dashboard</title>
+  <script type="text/javascript" src="http://yui.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
+</head>
+
+<body>
+</body>
+
+<template name="dashboard">
+  <div class="grid-stack">
+    <div class="grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="9" data-gs-height="4">
+      <div class="grid-stack-item-content">
+        {{> googleMap name="trafficMap" options=mapOptions}}
+      </div>
+    </div>
+    <div class="grid-stack-item right" data-gs-x="9" data-gs-y="0" data-gs-width="3" data-gs-height="2">
+      <div class="grid-stack-item-content welcome">
+        <h2>Hello, Sheng!</h2>
+      </div>
+    </div>
+    <div class="grid-stack-item right" data-gs-x="9" data-gs-y="2" data-gs-width="3" data-gs-height="2">
+      <div class="grid-stack-item-content">
+        {{> simpleWeather}}
+      </div>
+    </div>
+    <div class="grid-stack-item" data-gs-x="0" data-gs-y="4" data-gs-width="3" data-gs-height="3">
+      <div class="grid-stack-item-content stocks">
+        <table>
+        {{#each stocks}}
+          {{> stock}}
+        {{/each}}
+        </table>
+      </div>
+    </div>
+    <div class="grid-stack-item right" data-gs-x="3" data-gs-y="4" data-gs-width="9" data-gs-height="3">
+      <div id="news" class="grid-stack-item-content news">
+        Technology News:
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+  $(function() {
+    // Grid
+    var options = {
+      cell_height: 80,
+      vertical_margin: 10,
+      width: 12
+    };
+    $(".grid-stack").gridstack(options);
+
+    // Weather
+    Weather.options = {
+      location: "Seattle, WA",
+      unit: "f",
+      success: function(weather) {
+        html = "<table>";
+        html += "<tr><td width='55%'></td><td>" + weather.text + "</td></tr>";
+        html += "<tr><td width='55%'></td><td><h2>" + weather.temp + "&deg;" + weather.units.temp + "</h2></td></tr>";
+        html += "<tr><td width='55%'></td><td>High: " + weather.high + "&deg;" + weather.units.temp + "</td></tr>";
+        html += "<tr><td width='55%'></td><td>Low: " + weather.low + "&deg;" + weather.units.temp + "</td></tr>";
+        html += "<tr><td width='55%'>" + weather.city + ", " + weather.region + "</td><td>Tmr: " + weather.forecast[1].low + "&deg;" + weather.units.temp + "-" + weather.forecast[1].high + "&deg;" + weather.units.temp + "</td></tr>";
+        html += "</table>";
+      
+        $("#weather").html(html);
+        $("#weather").css("background-image", "url('" + weather.image + "')");
+      },
+      error: function(error) {
+        $("#weather").html('<p>' + error + '</p>');
+      }
+    }
+
+    // News
+    YUI().use("yql", function(Y) {
+      var query = "select * from rss where url = 'https://www.bing.com/news/search?q=technology+news&format=RSS'";
+      var q = Y.YQL(query, function(r) {
+        var news = $("#news");
+        var feed = r.query.results.item;
+        news.append("<ul>");
+        for (var i = 0; i < feed.length; i++) {
+          news.append("<li><a href='" + feed[i].link + "' target='_blank'>" + feed[i].title + "</a></li>");
+        }
+        news.append("</ul>");
+      })
+    })
+
+    // Resize the last grid in each row
+    $(".right").each(function(index, value) {
+      var oldVal = $(value).css("width");
+      var newVal = parseInt(oldVal, 10) - 10;
+      $(value).css("width", newVal + "px");
+    });
+  });
+  </script>
+</template>
+
+<template name="stock">
+  <tr>
+    <td width="25%">{{symbol}}</td>
+    <td width="25%">&#36;{{currentPrice}}</td>
+    {{#if largerThanZero changeInPercent}}
+      <td width="25%" class="green">{{formatPercent changeInPercent}}</td>
+    {{else}}
+      <td width="25%" class="red">{{formatPercent changeInPercent}}</td>
+    {{/if}}
+    <td width="25%">{{marketCap}}</td>
+  </tr>
+</template>

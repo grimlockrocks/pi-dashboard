@@ -1,0 +1,35 @@
+/* CSS declarations go here */
+body {
+  background: #3385ff;
+}
+
+.grid-stack-item {
+  background: #3385ff;
+}
+.grid-stack>.grid-stack-item>.grid-stack-item-content {
+  left: 0px;
+  right: 0px;
+}
+
+.right {
+  margin-left: 10px;
+}
+
+div.stocks {
+  background: white;
+}
+td.green {
+  background-color: green;
+}
+td.red {
+  background-color: red;
+}
+
+div.news {
+  background: white;
+  padding-left: 5px;
+}
+
+div.welcome {
+  background: white;
+}
